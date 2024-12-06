@@ -32,12 +32,22 @@ const productController = {
     },
 
     createNewProduct: async (req, res) => {
-        const { name, ean, description, price, quantity } = req.body;
+        const { name, ean, description, type, group, price, quantity } = req.body;
+    
+        // Validação dos parâmetros
+        if (!name || !ean || !description || price === undefined || quantity === undefined || !type || !group) {
+            return res.status(400).json({ error: 'Name, EAN, description, price, quantity, type, and group are required' });
+        }
+    
         try {
-            const newProduct = await productModel.createNewProduct(name, ean, description, price, quantity);
-            res.status(200).json(newProduct);
+            const newProduct = await productModel.createNewProduct(name, ean, description, type, group, price, quantity);
+            // Retorna o produto criado com status 201 (Created)
+            res.status(201).json(newProduct);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao criar novo produto.' });
+            // Log do erro para facilitar a depuração
+            console.error(error);
+            // Retorna erro detalhado
+            res.status(500).json({ error: error.message || 'Erro ao criar novo produto.' });
         }
     },
     updateProduct: async (req, res) => {
