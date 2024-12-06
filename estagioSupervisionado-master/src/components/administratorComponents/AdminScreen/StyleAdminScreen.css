@@ -1,0 +1,22 @@
+.mainContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sidebarLeft {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 100vh;
+    background-color: #FCA311;
+    z-index: 1000;
+}
+
+.mainContent {
+    margin-left: 300px;
+    margin-right: 300px;
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}

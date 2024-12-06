@@ -1,0 +1,12 @@
+.NavBarController{
+    background-color: black;
+}
+
+.conainerNavBar{
+    background-color: #FCA311;
+    height: 13vh;
+    display: flex; 
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: large;
+}

@@ -1,0 +1,107 @@
+@media(max-width: 600px){
+    .containerLogin{
+        background: linear-gradient(10deg, #000000, #332400, #664800, #996c00, #FCA311);
+        height: 100vh;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .loginBox{
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        background-color: #FCA311;
+        border-radius: 14px;
+    }
+    
+    .loginForm{
+        display: grid;
+        justify-content: center;
+        text-align: center;
+        color: black;
+        width: 300px;
+        height: 350px;
+    }
+
+    .loginText{
+        width: 200px;
+        height: 35px;
+        border-radius: 5px;
+        border: none;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+}
+@media (min-width: 601px) and (max-width: 1023px){
+    .containerLogin{
+        background: linear-gradient(10deg, #000000, #332400, #664800, #996c00, #FCA311);
+        height: 100vh;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .loginBox{
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        background-color: #FCA311;
+        border-radius: 14px;
+    }
+    
+    .loginForm{
+        display: grid;
+        justify-content: center;
+        text-align: center;
+        color: black;
+        width: 400px;
+        height: 400px;
+    }
+
+    .loginText{
+        width: 300px;
+        height: 35px;
+        border-radius: 5px;
+        border: none;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+    
+}
+
+@media(min-width: 1024px){
+    .containerLogin{
+        background: linear-gradient(10deg, #000000, #332400, #664800, #996c00, #FCA311);
+        height: 100vh;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .loginBox{
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        background-color: #FCA311;
+        border-radius: 14px;
+    }
+    
+    .loginForm{
+        display: grid;
+        justify-content: center;
+        text-align: center;
+        color: black;
+        width: 500px;
+        height: 400px;
+    }
+
+    .loginText{
+        width: 350px;
+        height: 40px;
+        border-radius: 5px;
+        border: none;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+}
