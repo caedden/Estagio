@@ -7,9 +7,13 @@ export default function OrderMoviments() {
         paymentType: '',
         status: '',
         tableId: '',
+        clientId: ''
     });
 
     const [products, setProducts] = useState([]);  // Lista de produtos disponíveis
+    const [clients, setClients] = useState([]);    // Lista de clientes para pesquisa
+    const [clientSearch, setClientSearch] = useState(''); // Filtro de pesquisa para clientes
+    const [isClientListVisible, setIsClientListVisible] = useState(false); // Controle de exibição da lista de clientes
 
     // Buscar os produtos disponíveis ao carregar o componente
     useEffect(() => {
@@ -25,6 +29,28 @@ export default function OrderMoviments() {
 
         fetchProducts();
     }, []);
+
+    // Função para buscar clientes com base no nome ou documento (clientId)
+    useEffect(() => {
+        const fetchClients = async () => {
+            if (clientSearch.trim() === '') return; // Evita chamada vazia ao backend
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/clientes?search=${clientSearch}`);
+                const result = await response.json();
+
+                if (response.ok) {
+                    setClients(result.data);  // Atualiza a lista de clientes com a resposta da API
+                } else {
+                    console.error('Erro ao carregar clientes:', result);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+            }
+        };
+
+        fetchClients();
+    }, [clientSearch]);
 
     const handleGeneralChange = (e) => {
         const { name, value } = e.target;
@@ -68,7 +94,7 @@ export default function OrderMoviments() {
     const addItem = () => {
         setOrderData((prevData) => ({
             ...prevData,
-            items: [...prevData.items, { id: '', quantity: 1, price: 0.00 }],
+            items: [...prevData.items, { id: '', quantity: 1, price: 0.00 }], // Adiciona um item vazio
         }));
     };
 
@@ -100,7 +126,7 @@ export default function OrderMoviments() {
 
         // Verifica se todos os campos obrigatórios foram preenchidos
         if (!items.length || !totalOrder || !paymentType || !status || !tableId) {
-            alert('Todos os campos são obrigatórios!' + totalOrder + " " + paymentType + " " + status + " " + tableId);
+            alert('Todos os campos são obrigatórios!');
             return;
         }
 
@@ -123,6 +149,9 @@ export default function OrderMoviments() {
 
             if (response.ok) {
                 alert(result.message);  // Exibe a mensagem de sucesso
+                
+                // Limpa o formulário após o sucesso
+                clearForm();
             } else {
                 alert(result.error);  // Exibe o erro caso a requisição falhe
             }
@@ -132,6 +161,20 @@ export default function OrderMoviments() {
         }
     };
 
+    // Função para limpar o formulário
+    const clearForm = () => {
+        setOrderData({
+            items: [{ id: '', quantity: 1, price: 0.00 }],
+            totalOrder: 0.00,
+            paymentType: '',
+            status: '',
+            tableId: '',
+            clientId: ''
+        });
+        setClients([]); // Limpa a lista de clientes
+        setClientSearch(''); // Limpa a busca de clientes
+        setIsClientListVisible(false); // Fecha a lista de clientes
+    };
 
     return (
         <div style={{ backgroundColor: '#FFC300', padding: '20px', width: '70%', margin: '0 auto', borderRadius: '8px' }}>
@@ -273,19 +316,32 @@ export default function OrderMoviments() {
                             <option value="">Selecione...</option>
                             <option value="Pendente">Pendente</option>
                             <option value="Em Preparação">Em Preparação</option>
-                            <option value="Finalizado">Finalizado</option>
+                            <option value="Concluído">Concluído</option>
                         </select>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
-                    <div style={{ flex: '1 1 45%' }}>
-                        <label htmlFor="tableId">Número da Mesa:</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 30%' }}>
+                        <label htmlFor="tableId">Mesa:</label>
                         <input
-                            type="number"
+                            type="text"
                             id="tableId"
                             name="tableId"
                             value={orderData.tableId}
+                            onChange={handleGeneralChange}
+                            required
+                            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+                        />
+                    </div>
+
+                    <div style={{ flex: '1 1 30%' }}>
+                        <label htmlFor="clientId">Cliente:</label>
+                        <input
+                            type="text"
+                            id="clientId"
+                            name="clientId"
+                            value={orderData.clientId}
                             onChange={handleGeneralChange}
                             required
                             style={{ width: '100%', padding: '8px', marginTop: '5px' }}
@@ -296,8 +352,9 @@ export default function OrderMoviments() {
                 <button
                     type="submit"
                     style={{
+                        width: '100%',
                         padding: '10px 20px',
-                        backgroundColor: '#4CAF50',
+                        backgroundColor: '#2196F3',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -305,11 +362,9 @@ export default function OrderMoviments() {
                         marginTop: '20px',
                     }}
                 >
-                    Cadastrar Pedido
+                    Finalizar Pedido
                 </button>
             </form>
         </div>
     );
-
-
-}    
+}

@@ -6,6 +6,11 @@ export default function ProductRegister() {
     const [selectedType, setSelectedType] = useState('Selecione o tipo');
     const [showGroupOptions, setShowGroupOptions] = useState(false);
     const [showTypeOptions, setShowTypeOptions] = useState(false);
+    const [productEAN, setProductEAN] = useState(''); // Agora é 'EAN' e tratado como string
+    const [productName, setProductName] = useState('');
+    const [productDescription, setProductDescription] = useState('');
+    const [productPrice, setProductPrice] = useState('');
+    const [productQuantity, setProductQuantity] = useState('');
 
     const handleGroupSelect = (option) => {
         setSelectedGroup(option);
@@ -17,9 +22,84 @@ export default function ProductRegister() {
         setShowTypeOptions(false);
     };
 
+    const clearForm = () => {
+        setProductEAN('');
+        setProductName('');
+        setProductDescription('');
+        setProductPrice('');
+        setProductQuantity('');
+        setSelectedGroup('Selecione o grupo');
+        setSelectedType('Selecione o tipo');
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Validação para verificar se todos os campos obrigatórios estão preenchidos
+        if (!productEAN || !productName || !productPrice || !productQuantity) {
+            alert('Preencha todos os campos.');
+            return;
+        }
+
+        // Verifique se o EAN é um número válido (mantido como string para garantir que seja tratado corretamente)
+        if (isNaN(productEAN) || productEAN.trim() === '') {
+            alert('Código EAN inválido.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/produto/ean/${productEAN.trim()}`); // Alterado para usar EAN
+
+            if (response.ok) {
+                const data = await response.json();
+                const updatedProduct = {
+                    ...data,
+                    quantity: data.quantity + parseInt(productQuantity),
+                };
+
+                await fetch(`http://localhost:3000/api/produto/ean/${productEAN.trim()}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedProduct),
+                });
+                alert('Produto já cadastrado. Quantidade atualizada!');
+            } else if (response.status === 404) {
+                // Para criar o novo produto, usamos o corpo de requisição esperado
+                const newProduct = {
+                    ean: productEAN.trim(), // 'ean' no lugar de 'code'
+                    name: productName,
+                    description: productDescription,
+                    price: parseFloat(productPrice),
+                    quantity: parseInt(productQuantity),
+                    group: selectedGroup,
+                    type: selectedType,
+                };
+
+                await fetch('http://localhost:3000/api/produto', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newProduct),
+                });
+                alert('Produto cadastrado com sucesso!');
+            } else {
+                alert('Erro ao acessar o produto.');
+            }
+
+            clearForm();
+
+        } catch (error) {
+            console.error('Erro ao cadastrar ou atualizar o produto:', error);
+            alert('Erro ao processar a requisição.');
+        }
+    };
+
     return (
         <div>
-            <form>
+            <form onSubmit={handleSubmit}>
                 <div className="registerContainer">
                     <div>
                         <h1 style={{ textAlign: 'center', paddingTop: '30px' }}>Cadastro de Produtos</h1>
@@ -27,25 +107,28 @@ export default function ProductRegister() {
                     <div className="boxRegister">
                         <div className="productLine">
                             <div>
-                                <p>Código:</p>
-                                <input className="productData" type="number" />
+                                <p>Código EAN:</p>
+                                <input
+                                    className="productData"
+                                    type="text"
+                                    value={productEAN}
+                                    onChange={(e) => setProductEAN(e.target.value)} // Alterado para EAN
+                                    maxLength="50"
+                                />
                             </div>
                             <div>
                                 <p>Nome:</p>
-                                <input className="productData" type="text" />
+                                <input className="productData" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} />
                             </div>
                             <div>
                                 <p>Valor:</p>
-                                <input className="productData" type="number" />
+                                <input className="productData" type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} />
                             </div>
                         </div>
                         <div className="productLine">
                             <div className="customDropdown">
                                 <p>Grupo:</p>
-                                <div
-                                    className="dropdownButton"
-                                    onClick={() => setShowGroupOptions(!showGroupOptions)}
-                                >
+                                <div className="dropdownButton" onClick={() => setShowGroupOptions(!showGroupOptions)}>
                                     {selectedGroup}
                                 </div>
                                 <ul className={`dropdownOptions ${showGroupOptions ? 'show' : ''}`}>
@@ -59,12 +142,13 @@ export default function ProductRegister() {
                                     <li onClick={() => handleGroupSelect("Combos")}>Combos</li>
                                 </ul>
                             </div>
+                            <div>
+                                <p>Descrição:</p>
+                                <input className="productData" type="text" value={productDescription} onChange={(e) => setProductDescription(e.target.value)} />
+                            </div>
                             <div className="customDropdown">
                                 <p>Tipo:</p>
-                                <div
-                                    className="dropdownButton"
-                                    onClick={() => setShowTypeOptions(!showTypeOptions)}
-                                >
+                                <div className="dropdownButton" onClick={() => setShowTypeOptions(!showTypeOptions)}>
                                     {selectedType}
                                 </div>
                                 <ul className={`dropdownOptions ${showTypeOptions ? 'show' : ''}`}>
@@ -72,15 +156,16 @@ export default function ProductRegister() {
                                     <li onClick={() => handleTypeSelect("Kg")}>Quilograma</li>
                                 </ul>
                             </div>
-
+                        </div>
+                        <div className="productLine">
                             <div>
                                 <p>Quantidade:</p>
-                                <input className="productData" type="number" />
+                                <input className="productData" type="number" value={productQuantity} onChange={(e) => setProductQuantity(e.target.value)} />
                             </div>
                         </div>
-                    </div>
-                    <div className="registerButton">
-                        <button type="submit" id="btn" style={{ borderRadius: '5px', width: '100px', height: '30px', backgroundColor: '#80ed99' }}>Cadastrar</button>
+                        <div className="registerButton">
+                            <button type="submit" id="btn" style={{ borderRadius: '5px', width: '100px', height: '30px', backgroundColor: '#80ed99', cursor: "pointer" }}>Cadastrar</button>
+                        </div>
                     </div>
                 </div>
             </form>

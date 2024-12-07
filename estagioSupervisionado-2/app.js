@@ -19,12 +19,14 @@ app.get('/api/estoque/:id', stockController.getStock);
 
 app.get('/api/clientes', clientController.getAllClients);
 app.get('/api/cliente/:id', clientController.getClient);
-
+app.get('/api/cliente/documento/:id', clientController.getClientByDocument);
 app.post('/api/clientes', clientController.createNewClient);
 app.put('/api/cliente/:id', clientController.updateClient);
 
 app.get('/api/produtos', productController.getAllProducts);
 app.get('/api/produto/:id', productController.getProduct);
+app.get('/api/produto/codigo/:id', productController.getProductByCode);
+app.get('/api/produto/topselling/:date',productController.getTopSellingProductsByDate);
 app.put('/api/produto/:id', productController.updateProduct);
 app.post('/api/produto', productController.createNewProduct);
 app.get('/api/produto/descricao/:id', productController.getAllProductsByDescription);

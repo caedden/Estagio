@@ -21,7 +21,7 @@ const orderController = {
     },
 
     createNewOrder: async (req, res) => {
-        const { items, totalOrder, paymentType, status, tableId } = req.body;
+        const { items, totalOrder, paymentType, status, tableId, clientId } = req.body;
 
         // Verificar se os dados necessários foram fornecidos
         if (!items || !totalOrder || !paymentType || !status || !tableId) {
@@ -30,7 +30,7 @@ const orderController = {
 
         try {
             // Chama a função para criar o pedido e inserir os itens no banco de dados
-            const newOrder = await orderModel.createNewOrder(items, totalOrder, paymentType, status, tableId);
+            const newOrder = await orderModel.createNewOrder(items, totalOrder, paymentType, status, tableId, clientId);
 
             // Retorna o pedido criado como resposta
             res.status(201).json({

@@ -1,72 +1,294 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Função para buscar o produto
-async function getProduct(id) {
-    try {
-        const response = await fetch('http://localhost:3000/api/produto/'+id);
-        if (response.ok) {
-            const product = await response.json();
-            return product;
-        } else {
-            throw new Error('Erro ao obter produto com id: ${id}');
-        }
-    } catch (error) {
-        console.log (response)
-        console.error('Erro na requisição:', error);
-        throw error;
+// Função para buscar todos os produtos
+async function getAllProducts() {
+    const response = await fetch('http://localhost:3000/api/produtos');
+    if (response.ok) {
+        const products = await response.json();
+        return products;
+    } else {
+        throw new Error('Erro ao obter lista de produtos');
+    }
+}
+
+async function getTopSellingProductsByDate(date) {
+    const response = await fetch(`http://localhost:3000/api/produto/topselling/${date}`);
+    if (response.ok) {
+        const products = await response.json();
+        return products;
+    } else {
+        throw new Error('Erro ao obter produtos mais vendidos');
+    }
+}
+
+// Função para buscar produto por descrição
+async function getProductsByDescription(description) {
+    const response = await fetch(`http://localhost:3000/api/produto/descricao/${description}`);
+    if (response.ok) {
+        const products = await response.json();
+        return products;
+    } else {
+        throw new Error('Erro ao obter produtos por descrição');
+    }
+}
+
+// Função para buscar produto pelo código (EAN)
+async function getProductByCode(ean) {
+    const response = await fetch(`http://localhost:3000/api/produto/codigo/${ean}`);
+    if (response.ok) {
+        const products = await response.json();
+        return products; // Retorna o array de produtos
+    } else {
+        throw new Error('Erro ao obter produto com código EAN');
+    }
+}
+
+
+// Função para criar um novo produto
+async function createProduct(newProduct) {
+    const response = await fetch('http://localhost:3000/api/produto', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProduct),
+    });
+
+    if (response.ok) {
+        const product = await response.json();
+        return product;
+    } else {
+        throw new Error('Erro ao criar produto');
     }
 }
 
 export default function ProductReport() {
-    const [productId, setProductId] = useState(''); // Estado para o id do produto
-    const [productData, setProductData] = useState(null); // Estado para os dados do produto
-    const [error, setError] = useState(null); // Estado para erro
+    const [productData, setProductData] = useState([]);
+    const [error, setError] = useState(null);
+    const [filters, setFilters] = useState({
+        description: '',
+        ean: '',
+    });
 
-    // Função para manipular a submissão do formulário
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // Evita o comportamento padrão de envio do formulário
-        setError(null); // Limpar erro anterior
+    const [newProduct, setNewProduct] = useState({
+        name: '',
+        ean: '',
+        description: '',
+        type: '',
+        group: '',
+        price: '',
+        quantity: '',
+    });
 
-        if (!productId) {
-            setError('Por favor, insira um ID de produto.');
-            return;
-        }
+    // Carregar todos os produtos ao montar o componente
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                const products = await getAllProducts();
+                setProductData(products);
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+        loadProducts();
+    }, []);
 
+    const handleDescriptionChange = (e) => {
+        setFilters({ ...filters, description: e.target.value });
+    };
+
+    const handleEanChange = (e) => {
+        setFilters({ ...filters, ean: e.target.value });
+    };
+
+    const handleCreateProductChange = (e) => {
+        const { id, value } = e.target;
+        setNewProduct({ ...newProduct, [id]: value });
+    };
+    const handleSearchTopSellingByDate = async (e) => {
+        e.preventDefault();
         try {
-            const product = await getProduct(productId);
-            setProductData(product); // Atualiza o estado com os dados do produto
+            const products = await getTopSellingProductsByDate(filters.date);
+            setProductData(products);
         } catch (error) {
-            setError('Produto não encontrado ou erro na requisição.');
+            setError(error.message);
+        }
+    };
+    
+    
+    
+
+    // Submissão do filtro de descrição
+    const handleSearchByDescription = async (e) => {
+        e.preventDefault();
+        try {
+            const products = await getProductsByDescription(filters.description);
+            setProductData(products);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    // Submissão do filtro de código (EAN)
+    const handleSearchByCode = async (e) => {
+        e.preventDefault();
+        try {
+            const products = await getProductByCode(filters.ean);
+            setProductData(products); // Apenas define o array retornado diretamente
+        } catch (error) {
+            setError(error.message);
+            setProductData([]); // Em caso de erro, limpa a lista
+        }
+    };
+
+
+
+
+    // Submissão para criar um novo produto
+    const handleSubmitCreateProduct = async (e) => {
+        e.preventDefault();
+        try {
+            const createdProduct = await createProduct(newProduct);
+            setProductData([...productData, createdProduct]); // Adiciona o novo produto na lista
+            setNewProduct({
+                name: '',
+                ean: '',
+                description: '',
+                type: '',
+                group: '',
+                price: '',
+                quantity: '',
+            });
+        } catch (error) {
+            setError(error.message);
         }
     };
 
     return (
         <div>
-            <h2>Relatório de Produto</h2>
+            <h2>Relatório de Produtos</h2>
 
-            {/* Formulário de busca */}
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="texto">ID do Produto: </label>
+            {/* Busca por Descrição */}
+            <form onSubmit={handleSearchByDescription}>
                 <input
                     type="text"
-                    id="texto"
-                    value={productId}
-                    onChange={(e) => setProductId(e.target.value)} // Atualiza o estado com o valor do input
+                    value={filters.description}
+                    onChange={handleDescriptionChange}
+                    placeholder="Buscar por descrição"
                 />
-                <button type="submit">Buscar Produto</button>
+                <button type="submit">Buscar por Descrição</button>
             </form>
 
-            {/* Exibindo os dados do produto */}
-            {error && <p style={{ color: 'red' }}>{error}</p>} {/* Exibe erro se houver */}
-            {productData && (
-                <div>
-                    <h3>Detalhes do Produto</h3>
-                    <p><strong>Nome:</strong> {productData[0].name}</p>
-                    <p><strong>Ean:</strong> {productData[0].ean}</p>
-                    <p><strong>Descrição:</strong> {productData[0].description}</p>
-                    <p><strong>Data de Criação:</strong> {new Date(productData[0].creationdate).toLocaleString()}</p>
-                </div>
-            )}
+        {/* Busca por Data para Produtos Mais Vendidos */}
+        <form onSubmit={handleSearchTopSellingByDate}>
+            <input
+                type="date"
+                value={filters.date}
+                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                placeholder="Buscar por Data"
+            />
+            <button type="submit">Buscar Mais Vendidos</button>
+        </form>
+
+
+
+            {/* Busca por Código (EAN) */}
+            <form onSubmit={handleSearchByCode}>
+                <input
+                    type="text"
+                    value={filters.ean}
+                    onChange={handleEanChange}
+                    placeholder="Buscar por Código (EAN)"
+                />
+                <button type="submit">Buscar por Código</button>
+            </form>
+
+            {/* Lista de Produtos */}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            <div>
+                <h3>Produtos Encontrados</h3>
+                <ul>
+                    {productData.length > 0 ? (
+                        productData.map((product) => (
+                            <li key={product.id}> {/* Usando o ID do produto como chave única */}
+                                <h4>{product.name}</h4>
+                                <p><strong>Ean:</strong> {product.ean}</p>
+                                <p><strong>Descrição:</strong> {product.description}</p>
+                                <p><strong>Preço:</strong> {product.price}</p>
+                                <p><strong>Tipo:</strong> {product.type}</p>
+                                <p><strong>Grupo:</strong> {product.group}</p>
+                            </li>
+                        ))
+                    ) : (
+                        <p>Nenhum produto encontrado.</p>
+                    )}
+                </ul>
+            </div>
+
+            
+            
+            {/* Criar Novo Produto */}
+            <h3>Criar Novo Produto</h3>
+            <form onSubmit={handleSubmitCreateProduct}>
+                <input
+                    type="text"
+                    id="name"
+                    value={newProduct.name}
+                    onChange={handleCreateProductChange}
+                    placeholder="Nome"
+                    required
+                />
+                <input
+                    type="text"
+                    id="ean"
+                    value={newProduct.ean}
+                    onChange={handleCreateProductChange}
+                    placeholder="Código EAN"
+                    required
+                />
+                <input
+                    type="text"
+                    id="description"
+                    value={newProduct.description}
+                    onChange={handleCreateProductChange}
+                    placeholder="Descrição"
+                    required
+                />
+                <input
+                    type="text"
+                    id="type"
+                    value={newProduct.type}
+                    onChange={handleCreateProductChange}
+                    placeholder="Tipo"
+                    required
+                />
+                <input
+                    type="text"
+                    id="group"
+                    value={newProduct.group}
+                    onChange={handleCreateProductChange}
+                    placeholder="Grupo"
+                    required
+                />
+                <input
+                    type="number"
+                    id="price"
+                    value={newProduct.price}
+                    onChange={handleCreateProductChange}
+                    placeholder="Preço"
+                    required
+                />
+                <input
+                    type="number"
+                    id="quantity"
+                    value={newProduct.quantity}
+                    onChange={handleCreateProductChange}
+                    placeholder="Quantidade"
+                    required
+                />
+                <button type="submit">Criar Produto</button>
+            </form>
         </div>
     );
 }

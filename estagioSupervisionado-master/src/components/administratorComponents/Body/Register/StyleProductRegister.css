@@ -3,6 +3,7 @@
     width: 1000px;
     height: 500px;
     border-radius: 14px;
+    display: grid;
 }
 
 .boxRegister {
@@ -30,6 +31,7 @@
     margin-bottom: 5%;
     font-weight: bold;
     font-size: large;
+    width: 1000px;
 }
 
 .customDropdown {

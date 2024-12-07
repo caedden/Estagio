@@ -1,6 +1,7 @@
 const productModel = require('../models/productModel'); // Importe o modelo
 const priceController = require('../controllers/priceController');
-const stockController = require('../controllers/stockController')
+const stockController = require('../controllers/stockController');
+const { getTopSellingProductsByDate } = require('../models/orderModel');
 
 const productController = {
     getAllProducts: async (req, res) => {
@@ -25,6 +26,15 @@ const productController = {
         const id = req.params.id;
         try {
             const product = await productModel.getProduct(id);
+            res.status(200).json(product);
+        } catch (error) {
+            res.status(500).json({ error: 'Erro ao obter produto com o id.' + id });
+        }
+    },
+    getProductByCode: async (req, res) => {
+        const id = req.params.id;
+        try {
+            const product = await productModel.getProductByCode(id);
             res.status(200).json(product);
         } catch (error) {
             res.status(500).json({ error: 'Erro ao obter produto com o id.' + id });
@@ -60,7 +70,17 @@ const productController = {
         } catch (error) {
             res.status(500).json({ error: 'Erro ao atualizar o produto com id ' + id });
         }
+    },
+    getTopSellingProductsByDate: async (req, res) => {
+    const { date } = req.params;
+    try {
+        const products = await productController.getTopSellingProductsByDate(date);
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao obter produtos mais vendidos', error });
     }
+}
+
 };
 
 module.exports = productController;

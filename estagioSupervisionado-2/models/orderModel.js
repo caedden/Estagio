@@ -22,7 +22,7 @@ const Order = {
         }
     },
 
-    createNewOrder: async (items, totalOrder, paymentType, status, tableId) => {
+    createNewOrder: async (items, totalOrder, paymentType, status, tableId, clientId) => {
         if (!items || !totalOrder || !paymentType || items.length === 0) {
             throw new Error('Todos os campos são obrigatórios: items, totalOrder, paymentType, status e tableId.');
         }
@@ -35,9 +35,9 @@ const Order = {
 
             // 1. Inserir o pedido na tabela "Order"
             const orderQuery = `
-                INSERT INTO "orders" (totalOrder, paymentType, status, tableId, creationDate)
-                VALUES ($1, $2, $3, $4, $5) RETURNING orderid`;
-            const orderValues = [totalOrder, paymentType, status, tableId, creationDate];
+                INSERT INTO "orders" (totalOrder, paymentType, status, tableId, clientId,creationDate)
+                VALUES ($1, $2, $3, $4, $5, $6) RETURNING orderid`;
+            const orderValues = [totalOrder, paymentType, status, tableId, clientId, creationDate];
             const orderResult = await client.query(orderQuery, orderValues);
             const orderId = orderResult.rows[0].orderid;  // ID do novo pedido criado
 
@@ -84,8 +84,7 @@ const Order = {
         }
     },
 
-
-
+    
 
     updateOrder: async (id, status) => {
         let array = []
@@ -95,28 +94,28 @@ const Order = {
         try {
             const query = 'UPDATE orders SET status = $1 WHERE orderid = $2 RETURNING *';
             const values = [status, id];
-            if (status == "cancelado") { 
+            if (status == "cancelado") {
                 const queryItens = 'SELECT * FROM itenspedido WHERE orderid = ' + id;
                 const result = await db.query(queryItens);
-            
+
                 for (const item of result.rows) {  // Renomeei 'array' para 'item'
                     // Atualizar o estoque dos produtos
                     const productQuery = 'SELECT quantity FROM Stock WHERE productId = $1';
                     const productResult = await client.query(productQuery, [item.productid]);
                     const product = productResult.rows[0];
-            
+
                     if (!product) {
                         throw new Error(`Produto com ID ${item.productid} não encontrado no estoque.`);
                     }
-            
+
                     const newStock = product.quantity + item.quantity;
-            
+
                     // Atualizar o estoque no banco de dados
                     const updateStockQuery = 'UPDATE Stock SET quantity = $1 WHERE productId = $2';
                     await client.query(updateStockQuery, [newStock, item.productid]);
                 }
             }
-            
+
             const result = await db.query(query, values);
             return result.rows[0];
         } catch (error) {
