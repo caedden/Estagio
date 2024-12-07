@@ -126,10 +126,10 @@ const Order = {
         try {
             // Consulta SQL para contar os pedidos por tipo de pagamento
             const query = `
-                SELECT paymenttype, COUNT(*) as total_orders
+                SELECT orderId, totalorder,paymenttype, COUNT(*) as total_orders
                 FROM public.orders
                 GROUP BY paymenttype
-                ORDER BY total_orders DESC;
+                ORDER BY totalorders DESC;
             `;
             const result = await db.query(query);
 

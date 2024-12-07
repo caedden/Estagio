@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { jsPDF } from 'jspdf';
 
 export default function OrderReport() {
     // Estado para armazenar o relatório de pedidos
@@ -30,6 +31,51 @@ export default function OrderReport() {
         }
     };
 
+    // Função para gerar o PDF com os dados detalhados por cliente
+    const generatePDF = () => {
+        if (!report || Object.keys(report).length === 0) {
+            alert('Não há dados para gerar o PDF');
+            return;
+        }
+
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text('Relatório de Pedidos Detalhado por Cliente', 20, 20);
+
+        let yOffset = 30;
+
+        // Adicionando os cabeçalhos da tabela
+        doc.setFontSize(12);
+        doc.text('Cliente', 20, yOffset);
+        doc.text('Pedido ID', 80, yOffset);
+        doc.text('Tipo de Pagamento', 140, yOffset);
+        doc.text('Valor Total', 200, yOffset);
+
+        yOffset += 10;
+
+        // Iterando sobre os clientes e os pedidos
+        Object.keys(report).forEach(clientName => {
+            const clientOrders = report[clientName];
+
+            doc.setFontSize(12);
+            doc.text(clientName, 20, yOffset); // Nome do cliente
+            yOffset += 10;
+
+            clientOrders.forEach(order => {
+                // Detalhes do pedido
+                doc.text(order.orderId.toString(), 80, yOffset);
+                doc.text(order.paymentType, 140, yOffset);
+                doc.text(order.totalValue.toFixed(2), 200, yOffset);
+                yOffset += 10;
+            });
+
+            // Adicionando espaçamento entre clientes
+            yOffset += 10;
+        });
+
+        doc.save('relatorio-pedidos-detalhado.pdf');
+    };
+
     // UseEffect para carregar o relatório ao montar o componente
     useEffect(() => {
         fetchReport();
@@ -48,24 +94,34 @@ export default function OrderReport() {
     // Exibição do relatório, caso haja dados
     return (
         <div>
-            <h1>Relatório de Pedidos por Tipo de Pagamento</h1>
+            <h1>Relatório de Pedidos Detalhado por Cliente</h1>
             {report && Object.keys(report).length > 0 ? (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tipo de Pagamento</th>
-                            <th>Total de Pedidos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {Object.keys(report).map((paymentType) => (
-                            <tr key={paymentType}>
-                                <td>{paymentType}</td>
-                                <td>{report[paymentType]}</td>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Pedido ID</th>
+                                <th>Tipo de Pagamento</th>
+                                <th>Valor Total</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {Object.keys(report).map((clientName) => {
+                                const clientOrders = report[clientName];
+                                return clientOrders.map((order) => (
+                                    <tr key={order.orderId}>
+                                        <td>{clientName}</td>
+                                        <td>{order.orderId}</td>
+                                        <td>{order.paymentType}</td>
+                                        <td>{order.totalValue}</td>
+                                    </tr>
+                                ));
+                            })}
+                        </tbody>
+                    </table>
+                    <button onClick={generatePDF}>Gerar PDF</button>
+                </div>
             ) : (
                 <p>Nenhum pedido encontrado.</p>
             )}

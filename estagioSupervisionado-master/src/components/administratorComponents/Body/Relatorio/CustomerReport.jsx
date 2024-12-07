@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './CustomerReports/customerReport.css';
+import { jsPDF } from "jspdf";
 
 export default function ClientReport() {
   const [report, setReport] = useState([]);
@@ -22,7 +23,7 @@ export default function ClientReport() {
         order,
       });
 
-      const response = await fetch(`http://localhost:3000/api/clientes`);
+      const response = await fetch(`http://localhost:3000/api/clientes?${queryParams.toString()}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -60,6 +61,31 @@ export default function ClientReport() {
   const handleSortChange = (field) => {
     setSortBy(field);
     setOrder(order === 'ASC' ? 'DESC' : 'ASC');
+  };
+
+  // Função para gerar o PDF
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Relatório de Clientes", 20, 20);
+
+    let yOffset = 30;
+    doc.setFontSize(12);
+    doc.text("Nome", 20, yOffset);
+    doc.text("Documento", 80, yOffset);
+    doc.text("Telefone", 160, yOffset);
+    
+    yOffset += 10;
+
+    // Adiciona os dados dos clientes no PDF
+    report.forEach(client => {
+      doc.text(client.name, 20, yOffset);
+      doc.text(client.document, 80, yOffset);
+      doc.text(client.phone, 160, yOffset);
+      yOffset += 10;
+    });
+
+    doc.save('relatorio-clientes.pdf');
   };
 
   if (loading) {
@@ -128,6 +154,11 @@ export default function ClientReport() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Botão para gerar o PDF */}
+      <div>
+        <button onClick={generatePDF}>Gerar PDF</button>
       </div>
 
       {/* Paginação */}

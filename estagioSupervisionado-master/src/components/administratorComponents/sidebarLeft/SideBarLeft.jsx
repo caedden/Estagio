@@ -9,10 +9,11 @@ import TableRegister from '../Body/Register/TableRegister';
 import CustomerReport from '../Body/Relatorio/CustomerReport';
 import OrderReport from '../Body/Relatorio/OrderReport';
 import ProductReport from '../Body/Relatorio/ProductReport';
+import ProductEdit from '../Body/Moviments/ProductEdit'
 
 
 export default function SideBarLeft() {
-    const [activeSection, setActiveSection] = useState(null); 
+    const [activeSection, setActiveSection] = useState(null);
     const [selectedMessage, setSelectedMessage] = useState('');
 
     const initialIcons = {
@@ -38,7 +39,7 @@ export default function SideBarLeft() {
     };
 
     const toggleSection = (section) => {
-        setActiveSection(activeSection === section ? null : section); 
+        setActiveSection(activeSection === section ? null : section);
     };
 
     const handleItemClick = (message, iconName) => {
@@ -82,6 +83,7 @@ export default function SideBarLeft() {
                             <li onClick={() => handleItemClick(<OrderMoviments />, 'movimentos')}>Movimentação de Pedidos</li>
                             <li onClick={() => handleItemClick(<PriceChange />, 'movimentos')}>Alteração de Preços</li>
                             <li onClick={() => handleItemClick(<StockMoviments />, 'movimentos')}>Movimentação de Estoque</li>
+                            <li onClick={() => handleItemClick(<ProductEdit />, 'movimentos')}>Alteração de Produtos</li> {/* Nova opção */}
                         </ul>
                     )}
                 </div>

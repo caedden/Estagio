@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable'; // Importando o plugin para tabelas
 
 // Função para buscar todos os produtos
 async function getAllProducts() {
@@ -42,7 +44,6 @@ async function getProductByCode(ean) {
         throw new Error('Erro ao obter produto com código EAN');
     }
 }
-
 
 // Função para criar um novo produto
 async function createProduct(newProduct) {
@@ -93,6 +94,64 @@ export default function ProductReport() {
         loadProducts();
     }, []);
 
+    // Função para gerar o PDF com os dados dos produtos, formatado como tabela
+    const generatePDF = () => {
+        if (!productData || productData.length === 0) {
+            alert('Não há dados para gerar o PDF');
+            return;
+        }
+
+        const doc = new jsPDF();
+
+        // Definindo a fonte e título
+        doc.setFontSize(16);
+        doc.text('Relatório de Produtos', 20, 20);
+
+        // Definindo a largura das colunas e título das colunas
+        const col = ["Nome", "Ean", "Descrição", "Preço", "Tipo", "Grupo", "Quantidade"];
+        const rows = [];
+
+        // Preenchendo as linhas com dados dos produtos
+        productData.forEach(product => {
+            rows.push([
+                product.name,
+                product.ean,
+                product.description,
+                product.price,
+                product.type,
+                product.group,
+                product.quantity,
+            ]);
+        });
+
+        // Criando a tabela no PDF
+        doc.autoTable({
+            startY: 30, // Definindo o Y para onde começar a tabela
+            head: [col],
+            body: rows,
+            theme: 'grid', // Definindo o tema da tabela como grid (com bordas)
+            margin: { top: 10 },
+            styles: {
+                overflow: 'linebreak',
+                fontSize: 10,
+                cellPadding: 2,
+                halign: 'center',
+            },
+            columnStyles: {
+                0: { cellWidth: 30 }, // Ajustando a largura da coluna 1
+                1: { cellWidth: 30 }, // Ajustando a largura da coluna 2
+                2: { cellWidth: 50 }, // Ajustando a largura da coluna 3
+                3: { cellWidth: 30 }, // Ajustando a largura da coluna 4
+                4: { cellWidth: 30 }, // Ajustando a largura da coluna 5
+                5: { cellWidth: 30 }, // Ajustando a largura da coluna 6
+                6: { cellWidth: 30 }, // Ajustando a largura da coluna 7
+            }
+        });
+
+        // Salvando o PDF
+        doc.save('relatorio-produtos.pdf');
+    };
+
     const handleDescriptionChange = (e) => {
         setFilters({ ...filters, description: e.target.value });
     };
@@ -105,6 +164,7 @@ export default function ProductReport() {
         const { id, value } = e.target;
         setNewProduct({ ...newProduct, [id]: value });
     };
+
     const handleSearchTopSellingByDate = async (e) => {
         e.preventDefault();
         try {
@@ -114,9 +174,6 @@ export default function ProductReport() {
             setError(error.message);
         }
     };
-    
-    
-    
 
     // Submissão do filtro de descrição
     const handleSearchByDescription = async (e) => {
@@ -140,9 +197,6 @@ export default function ProductReport() {
             setProductData([]); // Em caso de erro, limpa a lista
         }
     };
-
-
-
 
     // Submissão para criar um novo produto
     const handleSubmitCreateProduct = async (e) => {
@@ -179,18 +233,16 @@ export default function ProductReport() {
                 <button type="submit">Buscar por Descrição</button>
             </form>
 
-        {/* Busca por Data para Produtos Mais Vendidos */}
-        <form onSubmit={handleSearchTopSellingByDate}>
-            <input
-                type="date"
-                value={filters.date}
-                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                placeholder="Buscar por Data"
-            />
-            <button type="submit">Buscar Mais Vendidos</button>
-        </form>
-
-
+            {/* Busca por Data para Produtos Mais Vendidos */}
+            <form onSubmit={handleSearchTopSellingByDate}>
+                <input
+                    type="date"
+                    value={filters.date}
+                    onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                    placeholder="Buscar por Data"
+                />
+                <button type="submit">Buscar Mais Vendidos</button>
+            </form>
 
             {/* Busca por Código (EAN) */}
             <form onSubmit={handleSearchByCode}>
@@ -226,8 +278,8 @@ export default function ProductReport() {
                 </ul>
             </div>
 
-            
-            
+            <button onClick={generatePDF}>Gerar PDF</button>
+
             {/* Criar Novo Produto */}
             <h3>Criar Novo Produto</h3>
             <form onSubmit={handleSubmitCreateProduct}>

@@ -32,7 +32,7 @@ const Product = {
 
     getProduct: async (id) => {
         try {
-            const query = 'SELECT * FROM product where id = $1';
+            const query = 'SELECT p.id, p.name, p.ean, p.description, p.group, p.type,price.price, stock.quantity FROM product AS p INNER JOIN price ON price.productid = p.id INNER JOIN stock ON stock.productid = p.id where p.id = $1';
             const result = await db.query(query, [id]); // Passando o parâmetro como um array
             return result.rows;
         } catch (error) {
