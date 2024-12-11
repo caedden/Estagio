@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import OrderList from './OrdersList'; // Importando o componente OrderList
 
 export default function OrderMoviments() {
     const [orderData, setOrderData] = useState({
@@ -15,6 +16,9 @@ export default function OrderMoviments() {
     const [clientSearch, setClientSearch] = useState(''); // Filtro de pesquisa para clientes
     const [isClientListVisible, setIsClientListVisible] = useState(false); // Controle de exibição da lista de clientes
 
+    const [orders, setOrders] = useState([]); // Lista de pedidos cadastrados
+    const [isModalOpen, setIsModalOpen] = useState(false); // Controle de exibição do modal
+
     // Buscar os produtos disponíveis ao carregar o componente
     useEffect(() => {
         const fetchProducts = async () => {
@@ -28,6 +32,21 @@ export default function OrderMoviments() {
         };
 
         fetchProducts();
+    }, []);
+
+    // Buscar pedidos cadastrados
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/pedidos');
+                const data = await response.json();
+                setOrders(data); // Armazena os pedidos no estado
+            } catch (error) {
+                console.error('Erro ao carregar os pedidos:', error);
+            }
+        };
+
+        fetchOrders();
     }, []);
 
     // Função para buscar clientes com base no nome ou documento (clientId)
@@ -176,6 +195,40 @@ export default function OrderMoviments() {
         setIsClientListVisible(false); // Fecha a lista de clientes
     };
 
+    // Função para abrir o modal de pedidos
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    // Função para fechar o modal de pedidos
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    // Função para atualizar o status do pedido
+    const handleStatusChange = async (orderId, newStatus) => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/pedido/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (response.ok) {
+                alert('Status atualizado com sucesso!');
+                // Atualiza a lista de pedidos
+                fetchOrders();
+            } else {
+                alert('Erro ao atualizar o status');
+            }
+        } catch (error) {
+            console.error('Erro ao alterar status do pedido:', error);
+            alert('Erro ao alterar status do pedido');
+        }
+    };
+
     return (
         <div style={{ backgroundColor: '#FFC300', padding: '20px', width: '70%', margin: '0 auto', borderRadius: '8px' }}>
             <h2>Cadastro de Pedido</h2>
@@ -192,19 +245,14 @@ export default function OrderMoviments() {
                                     value={item.id}
                                     onChange={handleChange}
                                     data-index={index}
-                                    required
-                                    style={{ width: '100%', padding: '8px', marginTop: '5px' }}
                                 >
-                                    <option value="">Selecione um Produto</option>
+                                    <option value="">Selecione um produto</option>
                                     {products.map((product) => (
-                                        <option key={product.id} value={product.id}>
-                                            {product.name} - R${product.price.toFixed(2)}
-                                        </option>
+                                        <option key={product.id} value={product.id}>{product.name}</option>
                                     ))}
                                 </select>
                             </div>
-
-                            <div style={{ flex: '1 1 20%' }}>
+                            <div style={{ flex: '1 1 30%' }}>
                                 <label htmlFor={`item-quantity-${index}`}>Quantidade:</label>
                                 <input
                                     type="number"
@@ -213,158 +261,95 @@ export default function OrderMoviments() {
                                     value={item.quantity}
                                     onChange={handleChange}
                                     data-index={index}
-                                    min="1"
-                                    required
-                                    style={{ width: '100%', padding: '8px', marginTop: '5px' }}
                                 />
                             </div>
-
-                            <div style={{ flex: '1 1 20%' }}>
-                                <label htmlFor={`item-price-${index}`}>Preço:</label>
+                            <div style={{ flex: '1 1 30%' }}>
+                                <label htmlFor={`item-price-${index}`}>Preço Unitário:</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     id={`item-price-${index}`}
                                     name="price"
                                     value={item.price}
                                     onChange={handleChange}
                                     data-index={index}
-                                    style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+                                    
                                 />
                             </div>
-
-                            <button
-                                type="button"
-                                onClick={() => removeItem(index)}
-                                style={{
-                                    flex: '1 1 10%',
-                                    padding: '5px 10px',
-                                    backgroundColor: 'red',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    marginTop: '5px',
-                                }}
-                            >
-                                Remover
-                            </button>
+                            <div style={{ flex: '1 1 10%' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => removeItem(index)}
+                                    style={{ backgroundColor: 'red', color: 'white', border: 'none', padding: '5px 10px' }}
+                                >
+                                    Remover
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ))}
 
-                <button
-                    type="button"
-                    onClick={addItem}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginBottom: '20px',
-                    }}
-                >
-                    Adicionar Item
-                </button>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 30%' }}>
-                        <label htmlFor="totalOrder">Valor Total:</label>
-                        <input
-                            type="number"
-                            id="totalOrder"
-                            name="totalOrder"
-                            value={calculateTotal()}
-                            disabled
-                            style={{
-                                width: '100%',
-                                padding: '8px',
-                                marginTop: '5px',
-                                backgroundColor: '#f1f1f1',
-                            }}
-                        />
-                    </div>
-
-                    <div style={{ flex: '1 1 30%' }}>
-                        <label htmlFor="paymentType">Forma de Pagamento:</label>
-                        <select
-                            id="paymentType"
-                            name="paymentType"
-                            value={orderData.paymentType}
-                            onChange={handleGeneralChange}
-                            required
-                            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-                        >
-                            <option value="">Selecione...</option>
-                            <option value="Cartão de Crédito">Cartão de Crédito</option>
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="Pix">Pix</option>
-                        </select>
-                    </div>
-
-                    <div style={{ flex: '1 1 30%' }}>
-                        <label htmlFor="status">Status do Pedido:</label>
-                        <select
-                            id="status"
-                            name="status"
-                            value={orderData.status}
-                            onChange={handleGeneralChange}
-                            required
-                            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-                        >
-                            <option value="">Selecione...</option>
-                            <option value="Pendente">Pendente</option>
-                            <option value="Em Preparação">Em Preparação</option>
-                            <option value="Concluído">Concluído</option>
-                        </select>
-                    </div>
+                <button type="button" onClick={addItem} style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px' }}>Adicionar item</button>
+                <div style={{ marginTop: '15px' }}>
+                    <h3>Total: {calculateTotal()}</h3>
+                    <label htmlFor="paymentType">Forma de Pagamento:</label>
+                    <select
+                        id="paymentType"
+                        name="paymentType"
+                        value={orderData.paymentType}
+                        onChange={handleGeneralChange}
+                        required
+                    >
+                        <option value="">Selecione</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="cartao">Cartão</option>
+                        <option value="pix">Pix</option>
+                    </select>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 30%' }}>
-                        <label htmlFor="tableId">Mesa:</label>
-                        <input
-                            type="text"
-                            id="tableId"
-                            name="tableId"
-                            value={orderData.tableId}
-                            onChange={handleGeneralChange}
-                            required
-                            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-                        />
-                    </div>
-
-                    <div style={{ flex: '1 1 30%' }}>
-                        <label htmlFor="clientId">Cliente:</label>
-                        <input
-                            type="text"
-                            id="clientId"
-                            name="clientId"
-                            value={orderData.clientId}
-                            onChange={handleGeneralChange}
-                            required
-                            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-                        />
-                    </div>
+                <div style={{ marginTop: '15px' }}>
+                    <label htmlFor="status">Status:</label>
+                    <select
+                        id="status"
+                        name="status"
+                        value={orderData.status}
+                        onChange={handleGeneralChange}
+                        required
+                    >
+                        <option value="">Selecione</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="em_progresso">Em Progresso</option>
+                        <option value="finalizado">Finalizado</option>
+                    </select>
                 </div>
 
-                <button
-                    type="submit"
-                    style={{
-                        width: '100%',
-                        padding: '10px 20px',
-                        backgroundColor: '#2196F3',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginTop: '20px',
-                    }}
-                >
-                    Finalizar Pedido
-                </button>
+                <div style={{ marginTop: '15px' }}>
+                    <label htmlFor="tableId">Mesa:</label>
+                    <input
+                        type="number"
+                        id="tableId"
+                        name="tableId"
+                        value={orderData.tableId}
+                        onChange={handleGeneralChange}
+                        required
+                    />
+                </div>
+
+                <button type="submit" style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px', marginTop: '20px' }}>Enviar Pedido</button>
             </form>
+
+            <div>
+                <button onClick={openModal} style={{ marginTop: '20px', padding: '10px', backgroundColor: '#17a2b8', color: 'white', border: 'none' }}>
+                    Ver Pedidos Cadastrados
+                </button>
+                {isModalOpen && (
+                    <div style={{ position: 'fixed', top: '0', left: '0', right: '0', bottom: '0', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000 }}>
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', maxHeight: '80%', overflowY: 'auto' }}>
+                            <OrderList orders={orders} onStatusChange={handleStatusChange} />
+                            <button onClick={closeModal} style={{ backgroundColor: 'red', color: 'white', padding: '5px 10px', border: 'none' }}>Fechar</button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

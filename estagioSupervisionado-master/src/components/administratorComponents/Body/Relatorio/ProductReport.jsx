@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable'; // Importando o plugin para tabelas
-
+import './productReports/productStyle.css'
 // Função para buscar todos os produtos
 async function getAllProducts() {
     const response = await fetch('http://localhost:3000/api/produtos');
@@ -69,6 +69,7 @@ export default function ProductReport() {
     const [filters, setFilters] = useState({
         description: '',
         ean: '',
+        date: '', // Adicionando a data ao estado
     });
 
     const [newProduct, setNewProduct] = useState({
@@ -81,20 +82,51 @@ export default function ProductReport() {
         quantity: '',
     });
 
-    // Carregar todos os produtos ao montar o componente
-    useEffect(() => {
-        const loadProducts = async () => {
-            try {
-                const products = await getAllProducts();
-                setProductData(products);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-        loadProducts();
-    }, []);
+    // Função para buscar todos os produtos
+    async function getAllProducts() {
+        const response = await fetch('http://localhost:3000/api/produtos');
+        if (response.ok) {
+            const products = await response.json();
+            return products;
+        } else {
+            throw new Error('Erro ao obter lista de produtos');
+        }
+    }
 
-    // Função para gerar o PDF com os dados dos produtos, formatado como tabela
+    // Função para buscar produto mais vendido por data
+    async function getTopSellingProductsByDate(date) {
+        const response = await fetch(`http://localhost:3000/api/produto/topselling/${date}`);
+        if (response.ok) {
+            const products = await response.json();
+            return products;
+        } else {
+            throw new Error('Erro ao obter produtos mais vendidos');
+        }
+    }
+
+    // Função para buscar produtos por descrição
+    async function getProductsByDescription(description) {
+        const response = await fetch(`http://localhost:3000/api/produto/descricao/${description}`);
+        if (response.ok) {
+            const products = await response.json();
+            return products;
+        } else {
+            throw new Error('Erro ao obter produtos por descrição');
+        }
+    }
+
+    // Função para buscar produto pelo código (EAN)
+    async function getProductByCode(ean) {
+        const response = await fetch(`http://localhost:3000/api/produto/codigo/${ean}`);
+        if (response.ok) {
+            const products = await response.json();
+            return products;
+        } else {
+            throw new Error('Erro ao obter produto com código EAN');
+        }
+    }
+
+    // Função para gerar o PDF
     const generatePDF = () => {
         if (!productData || productData.length === 0) {
             alert('Não há dados para gerar o PDF');
@@ -113,15 +145,7 @@ export default function ProductReport() {
 
         // Preenchendo as linhas com dados dos produtos
         productData.forEach(product => {
-            rows.push([
-                product.name,
-                product.ean,
-                product.description,
-                product.price,
-                product.type,
-                product.group,
-                product.quantity,
-            ]);
+            rows.push([product.name, product.ean, product.description, product.price, product.type, product.group, product.quantity]);
         });
 
         // Criando a tabela no PDF
@@ -152,21 +176,11 @@ export default function ProductReport() {
         doc.save('relatorio-produtos.pdf');
     };
 
-    const handleDescriptionChange = (e) => {
-        setFilters({ ...filters, description: e.target.value });
-    };
-
-    const handleEanChange = (e) => {
-        setFilters({ ...filters, ean: e.target.value });
-    };
-
-    const handleCreateProductChange = (e) => {
-        const { id, value } = e.target;
-        setNewProduct({ ...newProduct, [id]: value });
-    };
+    // Funções de busca com limpeza de erro
 
     const handleSearchTopSellingByDate = async (e) => {
         e.preventDefault();
+        setError(null); // Limpa o erro antes de iniciar uma nova busca
         try {
             const products = await getTopSellingProductsByDate(filters.date);
             setProductData(products);
@@ -175,9 +189,9 @@ export default function ProductReport() {
         }
     };
 
-    // Submissão do filtro de descrição
     const handleSearchByDescription = async (e) => {
         e.preventDefault();
+        setError(null); // Limpa o erro antes de iniciar uma nova busca
         try {
             const products = await getProductsByDescription(filters.description);
             setProductData(products);
@@ -186,9 +200,9 @@ export default function ProductReport() {
         }
     };
 
-    // Submissão do filtro de código (EAN)
     const handleSearchByCode = async (e) => {
         e.preventDefault();
+        setError(null); // Limpa o erro antes de iniciar uma nova busca
         try {
             const products = await getProductByCode(filters.ean);
             setProductData(products); // Apenas define o array retornado diretamente
@@ -198,9 +212,14 @@ export default function ProductReport() {
         }
     };
 
-    // Submissão para criar um novo produto
+    const handleCreateProductChange = (e) => {
+        const { id, value } = e.target;
+        setNewProduct({ ...newProduct, [id]: value });
+    };
+
     const handleSubmitCreateProduct = async (e) => {
         e.preventDefault();
+        setError(null); // Limpa o erro antes de criar um novo produto
         try {
             const createdProduct = await createProduct(newProduct);
             setProductData([...productData, createdProduct]); // Adiciona o novo produto na lista
@@ -219,7 +238,7 @@ export default function ProductReport() {
     };
 
     return (
-        <div>
+        <div className="product-report">
             <h2>Relatório de Produtos</h2>
 
             {/* Busca por Descrição */}
@@ -227,7 +246,7 @@ export default function ProductReport() {
                 <input
                     type="text"
                     value={filters.description}
-                    onChange={handleDescriptionChange}
+                    onChange={(e) => setFilters({ ...filters, description: e.target.value })}
                     placeholder="Buscar por descrição"
                 />
                 <button type="submit">Buscar por Descrição</button>
@@ -249,7 +268,7 @@ export default function ProductReport() {
                 <input
                     type="text"
                     value={filters.ean}
-                    onChange={handleEanChange}
+                    onChange={(e) => setFilters({ ...filters, ean: e.target.value })}
                     placeholder="Buscar por Código (EAN)"
                 />
                 <button type="submit">Buscar por Código</button>
@@ -263,7 +282,7 @@ export default function ProductReport() {
                 <ul>
                     {productData.length > 0 ? (
                         productData.map((product) => (
-                            <li key={product.id}> {/* Usando o ID do produto como chave única */}
+                            <li key={product.id}>
                                 <h4>{product.name}</h4>
                                 <p><strong>Ean:</strong> {product.ean}</p>
                                 <p><strong>Descrição:</strong> {product.description}</p>

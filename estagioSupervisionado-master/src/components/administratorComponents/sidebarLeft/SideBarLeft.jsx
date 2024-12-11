@@ -9,8 +9,8 @@ import TableRegister from '../Body/Register/TableRegister';
 import CustomerReport from '../Body/Relatorio/CustomerReport';
 import OrderReport from '../Body/Relatorio/OrderReport';
 import ProductReport from '../Body/Relatorio/ProductReport';
-import ProductEdit from '../Body/Moviments/ProductEdit'
-
+import ProductEdit from '../Body/Moviments/ProductEdit';
+import CustomerEdit from '../Body/Moviments/CustomerEdit';
 
 export default function SideBarLeft() {
     const [activeSection, setActiveSection] = useState(null);
@@ -84,6 +84,7 @@ export default function SideBarLeft() {
                             <li onClick={() => handleItemClick(<PriceChange />, 'movimentos')}>Alteração de Preços</li>
                             <li onClick={() => handleItemClick(<StockMoviments />, 'movimentos')}>Movimentação de Estoque</li>
                             <li onClick={() => handleItemClick(<ProductEdit />, 'movimentos')}>Alteração de Produtos</li> {/* Nova opção */}
+                            <li onClick={() => handleItemClick(<CustomerEdit />, 'movimentos')}>Alteração de Cliente</li> {/* Nova opção */}
                         </ul>
                     )}
                 </div>

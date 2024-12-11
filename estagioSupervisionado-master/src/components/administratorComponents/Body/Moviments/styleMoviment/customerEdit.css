@@ -1,0 +1,118 @@
+.customerEditContainer {
+    background-color: #FCA311;
+    width: 1000px;
+    height: auto;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    margin-top: -70px;
+}
+
+.boxCustomerEdit {
+    text-align: center;
+    padding: 20px;
+}
+
+.inputGroup {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.inputGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.customerData { 
+    border-radius: 7px;
+    border: none;
+    width: 100%; /* Ajusta para 100% do container */
+    height: 30px;
+    text-align: center;
+}
+
+/* Estilo para o botão de buscar produto */
+.fetchProductContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Adiciona estilo ao botão */
+button {
+    background-color: #14213D;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 10px; /* Adicionado para espaçamento */
+}
+
+button:hover {
+    background-color: #0F1A31; /* Cor do botão ao passar o mouse */
+}
+
+/* Estilo para a lista de produtos */
+.productList {
+    background-color: #000000; /* Cor de fundo preta */
+    color: #FFFFFF; /* Texto branco para contraste */
+    border: 1px solid #333; /* Borda mais escura */
+    border-radius: 7px;
+    list-style: none;
+    padding: 10px;
+    max-height: 150px;
+    overflow-y: auto; /* Adiciona rolagem vertical */
+    margin-top: 10px;
+}
+
+.productList li {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.productList li:hover {
+    background-color: #333; /* Cor de fundo ao passar o mouse */
+}
+
+/* Estilo para a mensagem */
+p {
+    margin-top: 10px;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+
+
+.statusButtons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.buttonActive {
+    background-color: #73EC8B;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.buttonInactive {
+    background-color: gray; /* Cor cinza para o botão inativo */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.buttonInactive:hover, .buttonActive:hover {
+    opacity: 0.9;
+}

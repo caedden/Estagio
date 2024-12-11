@@ -1,0 +1,88 @@
+.table-register-container {
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #FCA311;
+    border-radius: 8px;
+}
+
+.table-register-title {
+    text-align: center;
+    color: black;
+}
+
+.table-register-form {
+    margin-bottom: 20px;
+}
+
+.table-register-label {
+    color: black;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.table-register-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.table-register-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #80ed99;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.table-register-subtitle {
+    text-align: center;
+    color: black;
+}
+
+.table-register-list {
+    list-style: none;
+    padding: 0;
+}
+
+.table-register-item {
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table-register-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.table-status {
+    font-weight: bold;
+}
+
+.table-status.active {
+    color: green;
+}
+
+.table-status.inactive {
+    color: red;
+}
+
+.table-status-toggle-button {
+    padding: 5px 10px;
+    background-color: #fca311;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

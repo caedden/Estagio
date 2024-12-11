@@ -50,7 +50,16 @@ const productController = {
         }
     
         try {
+            // Verifica se já existe um produto com o mesmo código EAN
+            const existingProduct = await productModel.getProductByCode(ean);
+            
+            if (existingProduct) {
+                return res.status(400).json({ error: 'Produto com este EAN já registrado.' });
+            }
+    
+            // Cria o novo produto caso o EAN não seja duplicado
             const newProduct = await productModel.createNewProduct(name, ean, description, type, group, price, quantity);
+    
             // Retorna o produto criado com status 201 (Created)
             res.status(201).json(newProduct);
         } catch (error) {
@@ -60,6 +69,7 @@ const productController = {
             res.status(500).json({ error: error.message || 'Erro ao criar novo produto.' });
         }
     },
+    
     updateProduct: async (req, res) => {
         const { name, ean, description } = req.body;
         const id = req.params.id;

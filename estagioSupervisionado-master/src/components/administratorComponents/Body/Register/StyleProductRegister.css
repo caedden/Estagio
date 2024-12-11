@@ -1,37 +1,46 @@
 .registerContainer {
-    background-color: #FCA311;
-    width: 1000px;
-    height: 500px;
+    background-color: #FCA311; /* Cor de fundo do container principal */
+    color: #000; /* Cor do texto */
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
+    padding: 20px;
     border-radius: 14px;
-    display: grid;
+    display: flex; /* Flexbox para alinhamento */
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto; /* Centralização */
 }
 
 .boxRegister {
-    margin-top: 5%;
-}
-
-.productData {
-    border-radius: 7px;
-    border: none;
-    width: 200px;
-    height: 30px;
-    margin-bottom: 7px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.registerButton {
-    margin-top: 5%;
-    text-align: center;
+    margin-top: 30px;
+    background-color: #e5a400; /* Fundo amarelo escuro */
+    color: #000; /* Cor do texto */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para profundidade */
+    width: 100%;
 }
 
 .productLine {
     display: flex;
-    justify-content: space-evenly;
-    margin-bottom: 5%;
+    justify-content: space-between; /* Espaçamento entre os campos */
+    width: 100%;
+    margin-bottom: 20px;
     font-weight: bold;
     font-size: large;
-    width: 1000px;
+    color: #000; /* Cor do texto */
+}
+
+.productData {
+    border-radius: 7px;
+    border: 1px solid #ddd;
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 16px;
+    color: #000; /* Cor do texto */
 }
 
 .customDropdown {
@@ -41,7 +50,7 @@
 }
 
 .dropdownButton {
-    border: none;
+    border: 1px solid #ddd;
     border-radius: 7px;
     width: 100%;
     height: 30px;
@@ -49,8 +58,7 @@
     background-color: #fff;
     font-size: 14px;
     padding: 5px;
-    text-align: center;
-    box-sizing: border-box;
+    color: #000; /* Cor do texto */
 }
 
 .dropdownOptions {
@@ -65,8 +73,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    display: none; 
-    box-sizing: border-box;
+    display: none;
 }
 
 .dropdownOptions.show {
@@ -82,7 +89,31 @@
 }
 
 .dropdownOptions li:hover {
-    background-color: #000000;
+    background-color: #000;
     color: #fff;
     border-radius: 5px;
+}
+
+.registerButton {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+button#btn {
+    border-radius: 5px;
+    width: 100px;
+    height: 30px;
+    background-color: #80ed99;
+    cursor: pointer;
+    color: #000000; /* Texto branco */
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+.boxRegister p {
+    color: #000; /* Cor preta para o texto */
+}
+
+button#btn:hover {
+    background-color: #66e685;
 }

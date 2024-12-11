@@ -20,28 +20,32 @@ const orderController = {
         }
     },
 
-    createNewOrder: async (req, res) => {
-        const { items, totalOrder, paymentType, status, tableId, clientId } = req.body;
 
+     createNewOrder :async (req, res) => {
+        const { items, totalOrder, paymentType, status, tableId, clientId } = req.body;
+    
         // Verificar se os dados necessários foram fornecidos
         if (!items || !totalOrder || !paymentType || !status || !tableId) {
             return res.status(400).json({ error: 'Todos os campos são obrigatórios: items, totalOrder, paymentType, status e tableId.' });
         }
-
+    
         try {
             // Chama a função para criar o pedido e inserir os itens no banco de dados
             const newOrder = await orderModel.createNewOrder(items, totalOrder, paymentType, status, tableId, clientId);
-
+    
             // Retorna o pedido criado como resposta
             res.status(201).json({
-                message: 'Pedido criado com sucesso!',
-                order: newOrder
+                message: `Pedido criado com sucesso! ID = ${newOrder.orderId}`,
+                order: newOrder,
             });
         } catch (error) {
             console.error('Erro ao criar o pedido:', error);
             res.status(500).json({ error: 'Erro ao criar o novo pedido.' });
         }
     },
+    
+   
+    
 
     updateOrder: async (req, res) => {
         const { status } = req.body;
@@ -54,7 +58,7 @@ const orderController = {
             res.status(500).json({ error: 'Erro ao atualizar o pedido com id ' + id });
         }
     },
-    getOrdersByPaymentTypeReport: async (req, res) => {
+    getOrdersByPaymentType: async (req, res) => {
         try {
             const report = await orderModel.getOrdersByPaymentType();
 

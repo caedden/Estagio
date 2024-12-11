@@ -1,0 +1,138 @@
+/* Estilo geral para o componente ProductReport */
+.product-report {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 20px;
+}
+
+/* Cabeçalho */
+.product-report h2 {
+    color: #FFCC00; /* Amarelo escuro */
+    text-align: center;
+    margin-top: 20px;
+    font-size: 24px;
+}
+
+/* Subtítulos */
+.product-report h3 {
+    color: #003366; /* Azul escuro */
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+/* Títulos de produto */
+.product-report h4 {
+    color: #003366; /* Azul escuro */
+    margin: 5px 0;
+}
+
+/* Formulários */
+.product-report form {
+    background-color: #fff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.product-report form input,
+.product-report form button {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.product-report button {
+    background-color: #003366; /* Azul escuro */
+    color: white;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+
+.product-report button:hover {
+    background-color: #002244; /* Azul escuro mais intenso */
+}
+
+/* Lista de Produtos */
+.product-report ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.product-report li {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 8px; /* Reduzido o espaçamento entre os itens */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.product-report li h4 {
+    margin: 0;
+}
+
+.product-report li p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* Tabela */
+.product-report table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px; /* Reduzido o espaçamento acima da tabela */
+}
+
+.product-report table, .product-report th, .product-report td {
+    border: 1px solid #003366; /* Azul escuro para bordas */
+}
+
+.product-report th {
+    background-color: #FFCC00; /* Amarelo escuro */
+    color: white;
+    padding: 8px;
+}
+
+.product-report td {
+    padding: 8px;
+    text-align: center;
+}
+
+/* Mensagens de erro */
+.product-report p {
+    color: red;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Estilo para o botão de gerar PDF */
+.product-report button#generate-pdf {
+    background-color: #FFCC00; /* Amarelo escuro */
+    color: #003366; /* Azul escuro */
+    font-weight: bold;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.product-report button#generate-pdf:hover {
+    background-color: #e6b800; /* Amarelo mais intenso */
+}
+
+/* Ajuste de fontes */
+.product-report h3, .product-report h4 {
+    font-weight: bold;
+}
+
+/* Ajuste de espaçamento entre elementos do formulário */
+.product-report form input, .product-report form button {
+    margin-top: 5px;
+}

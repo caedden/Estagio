@@ -33,7 +33,7 @@ app.get('/api/produto/descricao/:id', productController.getAllProductsByDescript
 
 app.get('/api/pedidos', orderController.getAllOrders);
 app.get('/api/pedido/:id', orderController.getOrder);
-app.get('/api/pedidos/tipoPagamento', orderController.getOrdersByPaymentTypeReport);
+app.get('/api/pedidos/tipoPagamento', orderController.getOrdersByPaymentType);
 app.get('/api/pedidos/tipoPagamento&data', orderController.getPaymentReportByDateRange);
 app.post('/api/pedido', orderController.createNewOrder);
 app.put('/api/pedido/:id', orderController.updateOrder);

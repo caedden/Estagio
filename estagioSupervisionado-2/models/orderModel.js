@@ -94,33 +94,46 @@ const Order = {
         try {
             const query = 'UPDATE orders SET status = $1 WHERE orderid = $2 RETURNING *';
             const values = [status, id];
-            if (status == "cancelado") {
-                const queryItens = 'SELECT * FROM itenspedido WHERE orderid = ' + id;
-                const result = await db.query(queryItens);
-
-                for (const item of result.rows) {  // Renomeei 'array' para 'item'
-                    // Atualizar o estoque dos produtos
-                    const productQuery = 'SELECT quantity FROM Stock WHERE productId = $1';
-                    const productResult = await client.query(productQuery, [item.productid]);
-                    const product = productResult.rows[0];
-
-                    if (!product) {
-                        throw new Error(`Produto com ID ${item.productid} não encontrado no estoque.`);
+            const client = await db.connect();
+        
+            try {
+                await client.query('BEGIN');  // Inicia a transação
+        
+                if (status === "cancelado") {
+                    const queryItens = 'SELECT * FROM itenspedido WHERE orderid = $1';
+                    const resultItens = await client.query(queryItens, [id]);
+        
+                    for (const item of resultItens.rows) {
+                        // Atualizar o estoque dos produtos
+                        const productQuery = 'SELECT quantity FROM Stock WHERE productId = $1';
+                        const productResult = await client.query(productQuery, [item.productid]);
+                        const product = productResult.rows[0];
+        
+                        if (!product) {
+                            throw new Error(`Produto com ID ${item.productid} não encontrado no estoque.`);
+                        }
+        
+                        const newStock = product.quantity + item.quantity;
+        
+                        // Atualizar o estoque no banco de dados
+                        const updateStockQuery = 'UPDATE Stock SET quantity = $1 WHERE productId = $2';
+                        await client.query(updateStockQuery, [newStock, item.productid]);
                     }
-
-                    const newStock = product.quantity + item.quantity;
-
-                    // Atualizar o estoque no banco de dados
-                    const updateStockQuery = 'UPDATE Stock SET quantity = $1 WHERE productId = $2';
-                    await client.query(updateStockQuery, [newStock, item.productid]);
                 }
+        
+                const result = await client.query(query, values);
+                await client.query('COMMIT');  // Finaliza a transação
+                return result.rows[0];
+            } catch (error) {
+                await client.query('ROLLBACK');  // Reverte a transação em caso de erro
+                throw error;
+            } finally {
+                client.release();  // Libera a conexão com o banco de dados
             }
-
-            const result = await db.query(query, values);
-            return result.rows[0];
         } catch (error) {
             throw error;
         }
+        
     },
     getOrdersByPaymentType: async () => {
         try {
