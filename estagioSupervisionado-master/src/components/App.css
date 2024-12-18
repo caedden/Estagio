@@ -1,0 +1,19 @@
+html, body {
+  height: 100vh; /* Ocupar 100% da altura da tela */
+  margin: 0; /* Remover margens */
+  padding: 0; /* Remover padding */
+}
+
+/* Container principal que vai ocupar toda a tela */
+.main-container {
+  min-height: 100vh; /* Garante que o container ocupe a altura mínima da tela */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Alinhar os elementos no topo */
+  background-color: #FFC300; /* Cor de fundo */
+  overflow: hidden; /* Previne o estouro de conteúdo */
+}
+
+#root {
+  flex-grow: 1
+}
